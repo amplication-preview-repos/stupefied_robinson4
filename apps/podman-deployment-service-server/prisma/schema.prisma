@@ -1,0 +1,57 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model PodmanDeployment {
+  createdAt        DateTime                    @default(now())
+  deploymentName   String?
+  id               String                      @id @default(cuid())
+  status           EnumPodmanDeploymentStatus?
+  updatedAt        DateTime                    @updatedAt
+  virtualMachine   VirtualMachine?             @relation(fields: [virtualMachineId], references: [id])
+  virtualMachineId String?
+}
+
+model VirtualMachine {
+  createdAt         DateTime           @default(now())
+  hostname          String?
+  id                String             @id @default(cuid())
+  ipAddress         String?
+  podmanDeployments PodmanDeployment[]
+  sshKey            String?
+  sshUser           String?
+  updatedAt         DateTime           @updatedAt
+}
+
+model Image {
+  containers Container[]
+  createdAt  DateTime    @default(now())
+  id         String      @id @default(cuid())
+  imageName  String?
+  repository String?
+  tag        String?
+  updatedAt  DateTime    @updatedAt
+}
+
+model Container {
+  containerName String?
+  createdAt     DateTime             @default(now())
+  id            String               @id @default(cuid())
+  image         Image?               @relation(fields: [imageId], references: [id])
+  imageId       String?
+  status        EnumContainerStatus?
+  updatedAt     DateTime             @updatedAt
+}
+
+enum EnumPodmanDeploymentStatus {
+  Option1
+}
+
+enum EnumContainerStatus {
+  Option1
+}
